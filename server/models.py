@@ -7,19 +7,33 @@ class Exercise(db.Model):
     __tablename__ = 'exercises'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
+    name = db.Column(db.String, nullable=False)
     category = db.Column(db.String)
     equipment = db.Column(db.Boolean)
 
     workout_exercises = db.relationship('WorkoutExercises', back_populates='exercise')
     workouts = db.relationship('Workout', secondary='workout_exercises', back_populates='exercises')
 
+    @validates('name')
+    def validate_name(self, key, name):
+        if not name:
+            raise ValueError("Name cannot be empty.")
+        return name
+
+    @validates('category')
+    def validate_category(self, key, category):
+        accepted_categories = ['cardio', 'strength', 'flexibility', 'balance']
+        if category not in accepted_categories:
+            raise ValueError("Category not found.")
+        return category
+
+
 
 class Workout(db.Model):
     __tablename__ = 'workouts'
 
     id = db.Column(db.Integer, primary_key=True)
-    date = db.Column(db.Date)
+    date = db.Column(db.Date, nullable=False)
     duration_minutes = db.Column(db.Integer)
     notes = db.Column(db.Text)
 
